@@ -4,4 +4,4 @@
 2. 此外，毕业生在教学质量评价页面会有毕业生问卷调查表，本程序并未对其进行处理，因此出现这种情况时，程序运行时会出现异常，请自行填写问卷调查表，也可修改相关代码对其作相应的处理或自动填写（不建议）。
 3. 最后，代码有点乱，有意参考学习的，也只能将就着看了......
 # 界面展示
-![interface](https://github.com/EugeneJie/AutoEvaluate/blob/master/interface/interface.PNG "界面展示")
+![interface](https://github.com/EugeneJie/AutoEvaluate/blob/master/interface/interface2.2.png "界面展示")

@@ -75,7 +75,6 @@ if message:
 
 r = s.post('http://uims.jlu.edu.cn/ntms/action/getCurrentUserInfo.do')
 info = json.loads(r.text)
-print(info)
 name = info['loginInfo']['nickName']
 t = info['groupsInfo'][0]['groupName']
 
@@ -176,7 +175,7 @@ for course in eval_info:
                             "p06": 61488, "p07": 62599,
                             "p08": 64182, "p09": 68422, "p10": 70505,
                             "sat11": 71589, "sat12": 73270}}
-    print(json.loads(s.post(post_url, data=json.dumps(post_data), headers=headers).text)['msg'])
+    s.post(post_url, data=json.dumps(post_data), headers=headers)
     count += 1
     print(str(count) + ' - ' + course['target']['name'] + ' 老师的 ' + course['targetClar']['notes'][2:] + ' 评价完成！\n')
 

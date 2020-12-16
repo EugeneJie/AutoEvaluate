@@ -47,14 +47,14 @@ password = psd_input('请输入您的密码：')
 
 headers = {'Content-Type': 'application/json'}
 
-print('\n\n正在登录...')
+print('\n\n正在获取验证码...')
 
 j_password = md5(('UIMS' + username + password).encode()).hexdigest()
-vcode = input("验证码：")
 a = s.get("https://uims.jlu.edu.cn/ntms/open/get-captcha-image.do?s=1").content
 byte_stream = io.BytesIO(a)
 im = Image.open(byte_stream)
 im.show()
+vcode = input("验证码：")
 cookies = {
     'loginPage': 'userLogin.jsp',
     'alu': username

@@ -2,9 +2,10 @@ import io
 import json
 import msvcrt
 import os
+import random
 import re
 from hashlib import md5
-
+from lxml import etree
 import requests
 from PIL import Image
 
@@ -29,7 +30,6 @@ def psd_input(text):
             chars.append(newChar)
             msvcrt.putch('*'.encode(encoding='utf-8'))
     return (''.join(chars))
-
 
 print("*********************欢迎您使用自动评教系统*********************\n")
 version = 'v2.3 (2020.12.14)'
@@ -105,7 +105,6 @@ r = s.post(post_url, data=json.dumps(post_data), headers=headers)
 classmate_info = json.loads(r.text)['value']
 for classmate in classmate_info:
     classmate_list.append(classmate['name'])
-
 print('正在查询可评课程...')
 post_data = {
     "tag": "student@evalItem",
@@ -145,10 +144,14 @@ for course in eval_info:
     post_data = {"evalItemId": "%s" % id}
     post_url = 'https://uims.jlu.edu.cn/ntms/action/eval/fetch-eval-item.do'
     r = s.post(post_url, data=json.dumps(post_data), headers=headers)
+    q = s.get("https://uims.jlu.edu.cn/ntms/page/eval/eval_detail_180.html?eitem={}".format(id))
+    html = etree.fromstring(q.text, parser=etree.HTMLParser(encoding='utf-8'))
+    result = set(html.xpath('//div//@name'))
     puzzle_info = json.loads(r.text)['items'][0]['puzzle']
     flag = False
 
     for classmate in classmate_list:
+        cl_name = ""
         length = len(puzzle_info) if len(puzzle_info) < len(classmate) else len(classmate)
         for i in range(length):
             if puzzle_info[i] == '_':
@@ -164,18 +167,24 @@ for course in eval_info:
         puzzle = input('请输入在下划线处对应的一个汉字，以构成一个你们班级同学的名字（%s）：' % puzzle_info)
         classmate_list.append(puzzle_info.replace('_', puzzle))
     ###
-
+    answers = {}
+    clicks = {}
+    for i in result:
+        if i == "puzzle_answer":
+            continue
+        if "advice" in i:
+            continue  # 也可以改成其他的，random choice啥的，我就不改了
+        answers[i] = "A"
+        clicks[i] = random.randint(200000, 999999)
+    answers["puzzle_answer"] = puzzle
+    clicks["_boot_"] = 0
     post_url = 'http://uims.jlu.edu.cn/ntms/action/eval/eval-with-answer.do'
-    post_data = {"guidelineId": 160, "evalItemId": "%s" % id,
-                 "answers": {"p01": "A", "p02": "A", "p03": "A", "p04": "A",
-                             "p05": "A", "p06": "A", "p07": "A", "p08": "A", "p09": "A",
-                             "p10": "A", "sat11": "A", "sat12": "A", "puzzle_answer": "%s" % puzzle},
-                 "clicks": {"_boot_": 0, "p01": 49050, "p02": 50509,
-                            "p03": 52769, "p04": 54833, "p05": 58783,
-                            "p06": 61488, "p07": 62599,
-                            "p08": 64182, "p09": 68422, "p10": 70505,
-                            "sat11": 71589, "sat12": 73270}}
-    s.post(post_url, data=json.dumps(post_data), headers=headers)
+    post_data = {"evalItemId": "%s" % id,
+                 "answers": answers,
+                 "clicks": clicks}
+    r = s.post(post_url, data=json.dumps(post_data), headers=headers)
+    if r.status_code != 200:
+        raise Exception("提交错误！错误信息：%s".format(r.text))
     count += 1
     print(str(count) + ' - ' + course['target']['name'] + ' 老师的 ' + course['targetClar']['notes'][2:] + ' 评价完成！\n')
 

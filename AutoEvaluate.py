@@ -47,8 +47,8 @@ password = psd_input('请输入您的密码：')
 
 headers = {'Content-Type': 'application/json'}
 
-print('\n\n正在获取验证码...')
 
+print('\n\n正在获取验证码...')
 j_password = md5(('UIMS' + username + password).encode()).hexdigest()
 a = s.get("https://uims.jlu.edu.cn/ntms/open/get-captcha-image.do?s=1").content
 byte_stream = io.BytesIO(a)
@@ -105,6 +105,7 @@ r = s.post(post_url, data=json.dumps(post_data), headers=headers)
 classmate_info = json.loads(r.text)['value']
 for classmate in classmate_info:
     classmate_list.append(classmate['name'])
+
 print('正在查询可评课程...')
 post_data = {
     "tag": "student@evalItem",

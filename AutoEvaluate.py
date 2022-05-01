@@ -32,7 +32,7 @@ def psd_input(text):
     return (''.join(chars))
 
 print("*********************欢迎您使用自动评教系统*********************\n")
-version = 'v2.4 (2021.12.27)'
+version = 'v2.4.2022.05.01'
 print('Version: ' + version)
 print('Coder: JieYijian')
 print('本程序可自动完成吉林大学学生的教学质量评价。')

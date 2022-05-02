@@ -32,7 +32,7 @@ def psd_input(text):
     return (''.join(chars))
 
 print("*********************欢迎您使用自动评教系统*********************\n")
-version = 'v2.4 (2021.12.27)'
+version = 'v2.4.2022.05.01'
 print('Version: ' + version)
 print('Coder: JieYijian')
 print('本程序可自动完成吉林大学学生的教学质量评价。')
@@ -148,26 +148,28 @@ for course in eval_info:
     q = s.get("https://uims.jlu.edu.cn/ntms/page/eval/eval_detail_180.html?eitem={}".format(id))
     html = etree.fromstring(q.text, parser=etree.HTMLParser(encoding='utf-8'))
     result = set(html.xpath('//div//@name'))
-    puzzle_info = json.loads(r.text)['items'][0]['puzzle']
-    flag = False
+    if "puzzle" in json.loads(r.text)['items'][0].keys():
+        # 有Puzzle再做
+        puzzle_info = json.loads(r.text)['items'][0]['puzzle']
+        flag = False
 
-    for classmate in classmate_list:
-        cl_name = ""
-        length = len(puzzle_info) if len(puzzle_info) < len(classmate) else len(classmate)
-        for i in range(length):
-            if puzzle_info[i] == '_':
-                puzzle = classmate[i]
-                cl_name = puzzle_info.replace('_', puzzle)
+        for classmate in classmate_list:
+            cl_name = ""
+            length = len(puzzle_info) if len(puzzle_info) < len(classmate) else len(classmate)
+            for i in range(length):
+                if puzzle_info[i] == '_':
+                    puzzle = classmate[i]
+                    cl_name = puzzle_info.replace('_', puzzle)
 
-        if cl_name == classmate:
-            flag = True
-            break
+            if cl_name == classmate:
+                flag = True
+                break
 
-    # 一般情况下均可获取到班级同学信息，可去掉 #
-    if not flag:
-        puzzle = input('请输入在下划线处对应的一个汉字，以构成一个你们班级同学的名字（%s）：' % puzzle_info)
-        classmate_list.append(puzzle_info.replace('_', puzzle))
-    ###
+        # 一般情况下均可获取到班级同学信息，可去掉 #
+        if not flag:
+            puzzle = input('请输入在下划线处对应的一个汉字，以构成一个你们班级同学的名字（%s）：' % puzzle_info)
+            classmate_list.append(puzzle_info.replace('_', puzzle))
+        ###
     answers = {}
     clicks = {}
     for i in result:

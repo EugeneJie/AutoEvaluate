@@ -153,7 +153,7 @@ for course in eval_info:
     html = etree.fromstring(q.text, parser=etree.HTMLParser(encoding='utf-8'))
     result = set(html.xpath('//div//@name'))
     result1 = set(html.xpath('//div//@data-dojo-props'))
-    if len(result1) != len(result):
+    if len(result1) > len(result):
         result = result1
     if "puzzle" in json.loads(r.text)['items'][0].keys():
         # 有Puzzle再做

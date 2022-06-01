@@ -32,7 +32,7 @@ def psd_input(text):
     return (''.join(chars))
 
 print("*********************欢迎您使用自动评教系统*********************\n")
-version = 'v2.4.2022.05.01'
+version = 'v2.4.2022.06.01'
 print('Version: ' + version)
 print('Coder: JieYijian')
 print('本程序可自动完成吉林大学学生的教学质量评价。')
@@ -145,9 +145,16 @@ for course in eval_info:
     post_data = {"evalItemId": "%s" % id}
     post_url = 'https://uims.jlu.edu.cn/ntms/action/eval/fetch-eval-item.do'
     r = s.post(post_url, data=json.dumps(post_data), headers=headers)
-    q = s.get("https://uims.jlu.edu.cn/ntms/page/eval/eval_detail_180.html?eitem={}".format(id))
+    try:
+        pageUrl = course['evalActTime']['evalGuideline']['paperUrl']
+    except:
+        pageUrl = "page/eval/eval_detail_180.html"
+    q = s.get("https://uims.jlu.edu.cn/ntms/{}?eitem={}".format(pageUrl, id))
     html = etree.fromstring(q.text, parser=etree.HTMLParser(encoding='utf-8'))
     result = set(html.xpath('//div//@name'))
+    result1 = set(html.xpath('//div//@data-dojo-props'))
+    if len(result1) != len(result):
+        result = result1
     if "puzzle" in json.loads(r.text)['items'][0].keys():
         # 有Puzzle再做
         puzzle_info = json.loads(r.text)['items'][0]['puzzle']
@@ -173,11 +180,15 @@ for course in eval_info:
     answers = {}
     clicks = {}
     for i in result:
+        if len(str(i).split(',')) != 1:
+            i = str(i).split(',')[0].split('\'')[-2]
+        answers[i] = "A"
         if i == "puzzle_answer":
             continue
         if "advice" in i:
             continue  # 也可以改成其他的，random choice啥的，我就不改了
-        answers[i] = "A"
+        if "judge" in i:
+            answers[i] = "Y"
         clicks[i] = random.randint(200000, 999999)
     answers["puzzle_answer"] = puzzle
     clicks["_boot_"] = 0
